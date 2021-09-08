@@ -1,0 +1,3 @@
+[submodule "MySQLClass"]
+	path = MySQLClass
+	url = https://github.com/lrcno6/MySQLClass.git
