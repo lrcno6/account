@@ -77,7 +77,7 @@ void new_table(MySQL &db,const Table &tabs){
 				func_account(db,tab_name);
 				return;
 			}
-		db.query("create table `"+tab_name+"`(id bigint unsigned not null auto_increment,income bigint not null,`time` datetime not null,description varchar(16384) not null,primary key(id)) auto_increment=1 default charset=utf8");
+		db.query("create table `"+tab_name+"`(id bigint unsigned not null auto_increment,income decimal(22,4) not null,`time` datetime not null,description varchar(16384) not null,primary key(id)) auto_increment=1 default charset=utf8");
 		func_account(db,tab_name);
 		break;
 	}
