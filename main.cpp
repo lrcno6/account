@@ -1,5 +1,6 @@
 #include<iostream>
 #include<string>
+#include<algorithm>
 #include<cstdio>
 #include<cstdlib>
 #include<cctype>
@@ -134,19 +135,33 @@ void add(MySQL &db,const std::string &tab_name,std::vector<std::string> args){
 					break;
 				}
 			}
+		case 3:
+			printf("enter the date & time (enter nothing to use the present time):");
+			std::getline(std::cin,tmp);
+			args.push_back(first_not_space(tmp)?tmp:"now");
 		default:
-			db.query("insert into `"+tab_name+"` (income,`time`,description) values ("+args[1]+",now(),'"+args[2]+"');");
+			db.query("insert into `"+tab_name+"` (income,`time`,description) values ("+args[1]+","+(args[3]=="now"?"now()":"'"+args[3]+"'")+",'"+args[2]+"');");
 	}
 }
 void show(MySQL &db,const std::string &tab_name,const std::vector<std::string> &args){
-	db.query("select * from `"+tab_name+"`;");
-	default_print_tab(db.get_result());
+	db.query("select * from `"+tab_name+"` order by `time`,id;");
+	auto tab=db.get_result();
+	size_t len[3]={0,0,0};
+	for(const auto &i:tab)
+		for(size_t j=1;j<3;j++)
+			len[j]=std::max(i[j].size(),len[j]);
+	for(const auto &i:tab){
+		std::string income(i[1].begin(),i[1].end()-2);
+		printf("%*s | %*s | %-s\n",(int)len[1],income.c_str(),(int)len[2],i[2].c_str(),i[3].c_str());
+	}
 }
 void calc(MySQL &db,const std::string &tab_name,const std::vector<std::string> &args){
 	db.query("select * from `"+tab_name+"`;");
 	if(db.get_result().size()){
 		db.query("select sum(income) from `"+tab_name+"`;");
-		default_print_tab(db.get_result());
+		auto sum=db.get_result()[0][0];
+		sum=std::string(sum.begin(),sum.end()-2);
+		printf("%s\n",sum.c_str());
 	}
 	else
 		puts("0");
@@ -154,7 +169,7 @@ void calc(MySQL &db,const std::string &tab_name,const std::vector<std::string> &
 void help(MySQL &db,const std::string &tab_name,const std::vector<std::string> &args){
 	puts("help\n");
 	puts("enter command like");
-	puts("    add [money] [description]");
+	puts("    add [money [description [datetime]]]");
 	puts("\tomitted part should be input later interactively");
 	puts("    show");
 	puts("    calc");
